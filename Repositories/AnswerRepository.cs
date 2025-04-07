@@ -9,6 +9,19 @@ public class AnswerRepository
         _context = context;
     }
 
+    public bool DeleteAnswer(int UserId,int AnswerId)
+    {
+        Answer FoundAnswer = _context.Answers.FirstOrDefault(a => a.Id == AnswerId && a.User_Id == UserId);
+        if(FoundAnswer == null)
+        {
+          return false;
+        }
+
+        _context.Answers.Remove(FoundAnswer);
+        _context.SaveChanges();
+        return true;
+    }
+
     public Answer CreateAnswer(int UserId, int QuestionId, string Title, string Code, string Description)
     {
         Answer NewAnswer = new Answer

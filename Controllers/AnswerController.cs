@@ -16,6 +16,45 @@ public class AnswerController : ControllerBase
         _tokenService = tokenService;
     }
 
+    [HttpDelete("DeleteAnswer")]
+    public ActionResult DeleteAnswer([FromBody] DeleteAnswerDTO deleteAnswerDTO)
+    {
+       if(string.IsNullOrWhiteSpace(deleteAnswerDTO.token))
+       {
+         return BadRequest(new{message = "invalid token."});
+       }
+       if(deleteAnswerDTO.AnswerId == null)
+       {
+         return BadRequest(new{message = "invalid answer id."});
+       }
+
+       var UserClaims = _tokenService.ValidateToken(deleteAnswerDTO.token);
+       if(UserClaims == null)
+       {
+        return BadRequest(new {message = "error on validating token."});
+       }
+
+      var UserIdClaim = UserClaims?.FindFirst(ClaimTypes.NameIdentifier);
+
+      if (UserIdClaim == null)
+      {
+        return BadRequest(new { message = "User ID not found in token." });
+      }
+
+      int userId;
+      if (!int.TryParse(UserIdClaim.Value, out userId))
+      {
+        return BadRequest(new { message = "error on parsing user id to int." });
+      }
+
+      bool answerDelete =  _AnswerRepository.DeleteAnswer(userId,deleteAnswerDTO.AnswerId);
+      if(answerDelete == false)
+      {
+        return BadRequest(new {message = "Cant Delete Answer."});
+      }
+       return Ok(new {message = "answer deleted succesfully."});
+    }
+
     [HttpPost("CreateAnswer")]
     public IActionResult CreateAnswer([FromBody] CreateAnswerDTO createAnswerDTO)
     {
