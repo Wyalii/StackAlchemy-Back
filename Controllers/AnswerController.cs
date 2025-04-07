@@ -47,6 +47,9 @@ public class AnswerController : ControllerBase
         return BadRequest(new { message = "error on parsing user id to int." });
       }
 
+       Console.WriteLine($"UserId from token: {userId}");
+       Console.WriteLine($"AnswerId to delete: {deleteAnswerDTO.AnswerId}");
+
       bool answerDelete =  _AnswerRepository.DeleteAnswer(userId,deleteAnswerDTO.AnswerId);
       if(answerDelete == false)
       {

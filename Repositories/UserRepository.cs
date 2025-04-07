@@ -9,6 +9,17 @@ public class UserRepository
         _context = context;
     }
 
+   public User GetUserById(int UserId)
+   {
+     User foundUser = _context.Users.FirstOrDefault(u => u.Id == UserId);
+     if(foundUser == null)
+     {
+       return null;
+     }
+
+     return foundUser;
+
+   }
     public User CreateUser(string Username, string Email, string Password, string token)
     {
         if (_context.Users.Any(u => u.Username == Username || u.Email == Email))

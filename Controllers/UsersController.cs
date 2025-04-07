@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using StackAlchemy_Back.Models;
 
@@ -18,6 +19,43 @@ public class UserController : ControllerBase
         _passwordService = passwordService;
         _emailService = emailService;
         _context = context;
+
+    }
+
+    [HttpGet("GetUserById")]
+    public IActionResult GetUserById(string token)
+    {
+       if(string.IsNullOrWhiteSpace(token))
+       {
+          return BadRequest(new {message = "invalid token"});
+       }
+
+        var UserClaims = _tokenService.ValidateToken(token);
+       if(UserClaims == null)
+       {
+        return BadRequest(new {message = "error on validating token."});
+       }
+
+      var UserIdClaim = UserClaims?.FindFirst(ClaimTypes.NameIdentifier);
+
+      if (UserIdClaim == null)
+      {
+        return BadRequest(new { message = "User ID not found in token." });
+      }
+
+      int userId;
+      if (!int.TryParse(UserIdClaim.Value, out userId))
+      {
+        return BadRequest(new { message = "error on parsing user id to int." });
+      }
+
+      User FoundUser = _UserRepository.GetUserById(userId);
+      if(FoundUser == null)
+      {
+        return BadRequest(new {message = "user doesnt exists."});
+      }
+
+      return Ok(new{username = FoundUser.Username});
 
     }
 
