@@ -13,6 +13,28 @@ public class QuestionRepository
         _tokenService = tokenService;
     }
 
+    public List<QuestionDto> searchQuestion(string searchQuery)
+    {
+        var words = searchQuery.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+        .Select(word => word.ToLower())
+        .ToList();
+
+        var questions = _context.Questions
+        .Where(question => words.Any(word =>
+         question.Title.ToLower().Contains(word)))
+        .Select(question => new QuestionDto
+        {
+            Id = question.Id,
+            Title = question.Title,
+            Description = question.Description,
+            Code = question.Code,
+        })
+     .ToList();
+
+
+        return questions;
+    }
+
     public QuestionDto GetQuestionById(int questionId)
     {
         Question question = _context.Questions

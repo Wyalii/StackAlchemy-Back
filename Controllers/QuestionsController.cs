@@ -14,6 +14,23 @@ public class QuestionController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("SearchQuestion")]
+    public IActionResult SearchQuestion(string searchQuery)
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            return BadRequest(new { message = "invalid search query." });
+        }
+
+        List<QuestionDto> questions = _questionRepository.searchQuestion(searchQuery);
+        if (questions == null || questions.Count == 0)
+        {
+            return BadRequest(new { message = "no questions found." });
+        }
+
+        return Ok(new { message = "Questions found.", Questions = questions });
+    }
+
 
 
     [HttpPost("CreateQuestion")]
